@@ -105,7 +105,7 @@ WRITE(*,*) '**********************************************************'
 WRITE(*,*) 'TURBULENCE MODEL:'
 !k-epsilon = 1 RSM(SSG) = 2 Cas-k-eps = 3
 
-WRITE(*,*) '1 - k-epsilon; 2 - RSM; 3 - Cas-ke'
+WRITE(*,*) 'Models: 1 - k-epsilon; 2 - RSM; 3 - Cas-ke'
 READ(*,*) turbmod
 
 turbmod3 = 0
