@@ -27,11 +27,31 @@ double precision K,E,PROD,S11,S12,S13,S21,S22,S23,S31,S32,S33
 double precision A11,A22,A33,A12,O21,SRCR11,SRCR22,SRCR33,SRCR12
 double precision O12, cssg_2, aij_Sij, cas_exact, t1, t2, t3, t4, t5, t6
 double precision ass, saa, term7, aos, aik_ajk, casdiff, t7, t2a, tt
-double precision dcasdt, cas_new, cas_n, cas_old
+double precision dcasdt, cas_new, cas_n, cas_old, s0, sbar0
 character*6 Output 
 
 !###################################################################
 !End of the declaration of variables 
+
+
+WRITE(*,*) '                     YOU ARE TESTING:'
+WRITE(*,*) '**********************************************************'
+WRITE(*,*) 'TURBULENCE MODEL:'
+!k-epsilon = 1 RSM(SSG) = 2 Cas-k-eps = 3
+
+WRITE(*,*) 'Models: 1 - k-epsilon; 2 - RSM; 3 - Cas-ke'
+READ(*,*) turbmod
+
+WRITE(*,*) 'IN CASE: '
+WRITE(*,*) '1 - A Constant Shear'
+WRITE(*,*) '2 - B Oscillating Shear'
+WRITE(*,*) '3 - C Oscillating Strain'
+WRITE(*,*) '4 - D Strain-Relax-Destrain'
+WRITE(*,*) '5 - E Shear Flow with Rotation'
+!casetype = 1 (A - constant shear), 2 (B - osc shear), 3(C - osc strain)
+!4 (D - strain-rel-destain), 5 (E - constant rotation)
+READ(*,*) casetype
+
 
 
 !Code Numerics Definition
@@ -55,8 +75,25 @@ smax = omega/R
 !Turbulence Initiation
 !###################################################################
 k0 = 1.0d0
-e0 = 1.0d0
 eta = 3.38   !non-dimensional strain 
+
+if (int(casetype).eq.1)then
+	s0 = 1.65
+	sbar0 = 0.5d0*abs(s0)**2
+	else if (int(casetype).eq.2)then
+		s0 =smax*cos(omega*0.0d0)
+		sbar0 = 0.5d0*abs(s0)**2
+	else if (int(casetype).eq.3)then
+		s0 = smax*cos(omega*0.0d0)/(sin(omega*0.0d0)+5.d0/4.d0)
+		sbar0 =	0.5d0*abs(s0)**2	
+	else if (int(casetype).eq.4)then
+		s0 = 0.0d0
+		sbar0 = 0.5d0*abs(s0)**2				
+	else if (int(casetype).eq.5)then
+		s0 =0.0d0
+		sbar0 = 0.5d0*abs(s0)**2
+endif
+e0 = (s0*k0)/eta
 !###################################################################
 !End of turbulence initiation set up
 
@@ -100,13 +137,7 @@ do i=1,3
 enddo
 
 !IMPLICIT NONE
-WRITE(*,*) '                     YOU ARE TESTING:'
-WRITE(*,*) '**********************************************************'
-WRITE(*,*) 'TURBULENCE MODEL:'
-!k-epsilon = 1 RSM(SSG) = 2 Cas-k-eps = 3
 
-WRITE(*,*) 'Models: 1 - k-epsilon; 2 - RSM; 3 - Cas-ke'
-READ(*,*) turbmod
 
 turbmod3 = 0
 
@@ -150,15 +181,6 @@ endif
 
 !#######################  End of Write to File #####################
 
-WRITE(*,*) 'IN CASE: '
-WRITE(*,*) '1 - A Constant Shear'
-WRITE(*,*) '2 - B Oscillating Shear'
-WRITE(*,*) '3 - C Oscillating Strain'
-WRITE(*,*) '4 - D Strain-Relax-Destrain'
-WRITE(*,*) '5 - E Shear Flow with Rotation'
-!casetype = 1 (A - constant shear), 2 (B - osc shear), 3(C - osc strain)
-!4 (D - strain-rel-destain), 5 (E - constant rotation)
-READ(*,*) casetype
 
 if(casetype.eq.1)then
 
@@ -191,7 +213,6 @@ endif
 k_old = k0
 e_old = e0
 kn = k0
-en = e0
 
 !Initialise RSM
 u1u1_n = (2.0d0/3.0d0)*k0
@@ -233,10 +254,6 @@ if(casetype.eq.1)then
         snorm=abs(s) !my sbar
         sbar =0.5d0*snorm**2
         obar =0.5d0*snorm**2
-	!Declaring epsilon
-	if(n.eq.0)then
-		e0 = (sbar*k0)/eta
-	endif
 
 !Oscillating Shear
 	else if (casetype.eq.2)then
@@ -383,6 +400,11 @@ e_new = en + dt*(prodk*ce1 - e_old*ce2)*(e_old/k_old)
   
 kdiff = k_new - k_old
 ediff = e_new - e_old
+
+!WRITE(*,*) k0, e0
+!W!RITE(*,*) k_old, e_old
+!WRITE(*,*) kdiff, ediff
+!READ(*,*)
 endif
 !@@@@@@ END: k-epsilons
 

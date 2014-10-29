@@ -83,6 +83,11 @@ def data_extraction_keps(validation, casetype):
     
     if int(validation) == 1:
         if int(casetype) ==  1:
+            k_scaleds = []
+            k_0_scaled = ks[0]
+            for item in ks:
+                new_k = float(item)/float(k_0_scaled)
+                k_scaleds.append(new_k)
             print 'Validating Results...'
             ###########################################################
             #Read data from SKE 
@@ -137,7 +142,7 @@ def data_extraction_keps(validation, casetype):
 
             ax1.plot(k_Ham,St_Ham,'-', color='#dc143c',linewidth = 2.0,label='Hamlington SKE')
             ax1.plot(k_Bar,St_Bar,'o', color='black',markersize = 10.0, label='Bardina LES')
-            ax1.plot(ts,ks,'-', color='#008000',linewidth = 2.0, label='My results')
+            ax1.plot(ts,k_scaleds,'-', color='#008000',linewidth = 2.0, label='My results')
             ax1.grid(b=True,which='both',color='0.25',linestyle='--')
             ax1.set_xlabel('St')
             ax1.set_ylabel('k/k0', fontsize = 14.0)
