@@ -56,7 +56,7 @@ READ(*,*) casetype
 
 !Code Numerics Definition
 !###################################################################
-ntmax = 10000   !number of time steps
+ntmax = 3000   !number of time steps
 residual = 1.d-4
 niter = 10000000    !number of iteration for each time step 
 dt = 1.d-3
@@ -74,8 +74,8 @@ smax = omega/R
 
 !Turbulence Initiation
 !###################################################################
-k0 = 1.0d0
-eta = 3.38   !non-dimensional strain 
+k0 = 0.161448d0
+eta = 3.3   !non-dimensional strain 
 
 if (int(casetype).eq.1)then
 	s0 = 1.65
@@ -310,20 +310,22 @@ if(casetype.eq.1)then
 
 !Strain-relax-destrain
 	else if (casetype.eq.4)then
-		if ((t.ge.0.d0).and.(t.le.0.65d0))then
+		if ((t.ge.0.d0).and.(t.lt.0.65d0))then
 			s = 0.0d0
-		else if ((t.ge.0.65d0).and.(t.le.1.05d0))then
+		else if ((t.ge.0.65d0).and.(t.lt.1.05d0))then
 			s = 9.65d0*t - 6.27d0
-		else if ((t.ge.1.05d0).and.(t.le.1.47d0))then
+		else if ((t.ge.1.05d0).and.(t.lt.1.47d0))then
 			s = -9.65d0*t + 14.19d0
-		else if ((t.ge.1.47d0).and.(t.le.1.89d0))then
+		else if ((t.ge.1.47d0).and.(t.lt.1.89d0))then
 			s = 0.0d0
-		else if ((t.ge.1.89d0).and.(t.le.2.05d0))then
-			s = -21.38*t + 40.41
-		else if ((t.ge.2.05d0).and.(t.le.2.50d0))then
+		else if ((t.ge.1.89d0).and.(t.lt.2.05d0))then
+			s = (-21.38*t + 40.41)
+			!s = -25.8*t
+		else if ((t.ge.2.05d0).and.(t.lt.2.50d0))then
 			s = 7.6d0*t - 19.0d0
 		endif
-	
+		WRITE(*,*) 's', s
+		!READ(*,*)
 	sij(1,1) = s*(2.d0/3.d0)
 	sij(2,2) = s*(-1.d0/3.d0)
 	sij(3,3) = sij(2,2)
