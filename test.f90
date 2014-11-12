@@ -74,26 +74,31 @@ smax = omega/R
 
 !Turbulence Initiation
 !###################################################################
-k0 = 0.161448d0
+k0 = 0.0062
 eta = 3.3   !non-dimensional strain 
 
 if (int(casetype).eq.1)then
 	s0 = 1.65
 	sbar0 = 0.5d0*abs(s0)**2
+	e0 = (s0*k0)/eta
 	else if (int(casetype).eq.2)then
 		s0 =smax*cos(omega*0.0d0)
 		sbar0 = 0.5d0*abs(s0)**2
+		e0 = (s0*k0)/eta
 	else if (int(casetype).eq.3)then
 		s0 = smax*cos(omega*0.0d0)/(sin(omega*0.0d0)+5.d0/4.d0)
 		sbar0 =	0.5d0*abs(s0)**2	
+		e0 = (s0*k0)/eta
 	else if (int(casetype).eq.4)then
 		s0 = 0.0d0
-		sbar0 = 0.5d0*abs(s0)**2				
+		sbar0 = 0.5d0*abs(s0)**2	
+		e0 = 0.0035			
 	else if (int(casetype).eq.5)then
 		s0 =0.0d0
 		sbar0 = 0.5d0*abs(s0)**2
+		e0 = (s0*k0)/eta
 endif
-e0 = (s0*k0)/eta
+
 !###################################################################
 !End of turbulence initiation set up
 
@@ -213,6 +218,7 @@ endif
 k_old = k0
 e_old = e0
 kn = k0
+en = e0
 
 !Initialise RSM
 u1u1_n = (2.0d0/3.0d0)*k0
@@ -326,22 +332,25 @@ if(casetype.eq.1)then
 		endif
 		WRITE(*,*) 's', s
 		!READ(*,*)
-	sij(1,1) = s*(2.d0/3.d0)
-	sij(2,2) = s*(-1.d0/3.d0)
-	sij(3,3) = sij(2,2)
-	sij_total = sij(1,1)+sij(2,2)+sij(3,3)
+	sij(1,1) = s*(1.d0/2.d0)
+	sij(2,2) = -sij(1,1)
+	!sij(3,3) = sij(2,2)
+	sij_total = sij(1,1)+sij(2,2)!+sij(3,3)
 	if(sij_total.ne.0.d0)then
 		WRITE(*,*)'Error! - incompressibility is not achieved'
 	endif
-  	sij(1,1)=s*(1.d0-1.d0/3.d0)
-  	sij(2,2)=s*(0.d0-1.d0/3.d0)
-  	sij(3,3)=s*(0.d0-1.d0/3.d0)
+  	!sij(1,1)=s*(1.d0-1.d0/3.d0)
+  	!sij(2,2)=s*(0.d0-1.d0/3.d0)
+  	!sij(3,3)=s*(0.d0-1.d0/3.d0)
+	!sij(1,1) = s *(1.0d0/2.0d0)
+	!sij(2,2) = - s
 
- 	dsijdt(1,1)=dsdt*(1.d0-1.d0/3.d0)
-  	dsijdt(2,2)=dsdt*(0.d0-1.d0/3.d0)
-  	dsijdt(3,3)=dsdt*(0.d0-1.d0/3.d0)
 
-  	sbar = (sij(1,1)**2+sij(2,2)**2+sij(3,3)**2)
+ 	!!dsijdt(1,1)=dsdt*(1.d0-1.d0/3.d0)
+  	!dsijdt(2,2)=dsdt*(0.d0-1.d0/3.d0)
+  	!dsijdt(3,3)=dsdt*(0.d0-1.d0/3.d0)
+
+  	sbar = (sij(1,1)**2+sij(2,2)**2) !+sij(3,3)**2)
   	obar = sbar
   	snorm = sqrt(2.d0*sbar)
 	!Declaring epsilon
@@ -396,15 +405,17 @@ endif
 !@@@@@@@@@@ k-epsilon
 if(turbmod.eq.1)then
 
-prodk = 2*cmu*((k_old**2)/e_old)*(sbar**2.0d0)
+prodk = 2.0d0*cmu*((k_old**2.d0)/e_old)*(sbar**2.0d0)
 k_new = kn + dt*(prodk - e_old)
-e_new = en + dt*(prodk*ce1 - e_old*ce2)*(e_old/k_old)  
+e_new = en + dt*((prodk*ce1 - e_old*ce2)*(e_old/k_old))  
   
 kdiff = k_new - k_old
 ediff = e_new - e_old
 
 !WRITE(*,*) k0, e0
-!W!RITE(*,*) k_old, e_old
+!WRITE(*,*) prodk, cmu, sbar
+!WRITE(*,*) k_new, e_new
+!WRITE(*,*) k_old, e_old
 !WRITE(*,*) kdiff, ediff
 !READ(*,*)
 endif

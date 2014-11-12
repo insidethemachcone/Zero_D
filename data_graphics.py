@@ -22,6 +22,13 @@ def data_extraction_keps(validation, casetype):
     pks = []
     ks = []
     es = []
+    a11s = []
+    a22s = []
+    a33s = []
+    u1u1s = []
+    u2u2s = []
+    u3u3s = []
+    t_factors = []
 
     for item in lines:
         #print 'item is:', item
@@ -29,9 +36,9 @@ def data_extraction_keps(validation, casetype):
         ns.append(n)
         x = item[15:18]
         xs.append(x)
-        t = item[17:33]
+        t = item[17:32]
         ts.append(t)
-        s = item[34:50]
+        s = item[33:50]
         ss.append(s)
         pk = item[50:64]
         pks.append(pk)
@@ -39,6 +46,26 @@ def data_extraction_keps(validation, casetype):
         ks.append(k)
         e = item[80:96]
         es.append(e)
+        
+    
+        if casetype == 3 or casetype == 4 :
+            a11 = -(2.0*0.09*(float(k)**2/float(e)))*float(s)*(2.0/3.0)
+            a11s.append(a11)
+            a22 = a11*(-1.0/3.0)
+            a22s.append(a22)
+            a33 = a22
+            a33s.append(a33)
+            
+            u1u1 = (2.0*0.09*float(s) - ((2.0/3.0)*float(k)))*(2.0/3.0)
+            u2u2 = u1u1*(-1.0/3.0)
+            u3u3 = u2u2
+            u1u1s.append(u1u1)
+            u2u2s.append(u2u2)
+            u3u3s.append(u3u3)
+            
+            #t_factor = (float(es[0])/float(ks[0]))*float(t)
+            t_factor = float(t)*(0.0035/0.0062)*0.5
+            t_factors.append(t_factor)
         #print 'n', n
         #print 'x', x
         #print 't', t
@@ -80,6 +107,67 @@ def data_extraction_keps(validation, casetype):
     ax4.set_ylabel('$\epsilon (s)$', fontsize = 18.0)
     
     plt.show()
+    
+    fig, ((ax1, ax2),(ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
+
+    ax1.plot(t_factors,ss,'-', color='black',linewidth = 2.0)
+    ax1.grid(b=True,which='both',color='0.25',linestyle='--')
+    ax1.tick_params(axis = 'x', labelsize = 18.0)
+    ax1.tick_params(axis = 'y', labelsize = 18.0)
+    ax1.set_xlabel('$t \epsilon_0 / k_0$ ', fontsize = 18.0)
+    ax1.set_ylabel(' S(t)', fontsize = 18.0)
+    
+    ax2.plot(t_factors,ks,'-', color='blue',linewidth = 2.0)
+    ax2.grid(b=True,which='both',color='0.25',linestyle='--')
+    ax2.tick_params(axis = 'x', labelsize = 18.0)
+    ax2.tick_params(axis = 'y', labelsize = 18.0)
+    ax2.set_xlabel('$t \epsilon_0 / k_0$ ', fontsize = 18.0)
+    ax2.set_ylabel('ks ', fontsize = 18.0)
+    
+    ax3.plot(t_factors,pks,'-', color='red',linewidth = 2.0)
+    ax3.grid(b=True,which='both',color='0.25',linestyle='--')
+    ax3.tick_params(axis = 'x', labelsize = 18.0)
+    ax3.tick_params(axis = 'y', labelsize = 18.0)
+    ax3.set_xlabel('$t \epsilon_0 / k_0$ ', fontsize = 18.0)
+    ax3.set_ylabel('Pks ', fontsize = 18.0)
+    
+    ax4.plot(t_factors,ks,'-', color='green',linewidth = 2.0)
+    ax4.grid(b=True,which='both',color='0.25',linestyle='--')
+    ax4.tick_params(axis = 'x', labelsize = 18.0)
+    ax4.tick_params(axis = 'y', labelsize = 18.0)
+    ax4.set_xlabel('$t \epsilon_0 / k_0$ ', fontsize = 18.0)
+    ax4.set_ylabel('$\epsilon (s)$', fontsize = 18.0)
+    
+    plt.show()
+    
+    
+    
+    #print len(ts), len(a11s), len(a22s), len(a33s)
+    
+    fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1)
+    ax1.plot(t_factors,a11s,'-', color='black',linewidth = 2.0, label='$a_{11}$')
+    ax1.plot(t_factors,a22s,'-', color='blue',linewidth = 2.0, label='$a_{22}$')
+    ax1.plot(t_factors,a33s,'-', color='red',linewidth = 2.0, label='$a_{33}$')
+    ax1.grid(b=True,which='both',color='0.25',linestyle='--')
+    ax1.tick_params(axis = 'x', labelsize = 18.0)
+    ax1.tick_params(axis = 'y', labelsize = 18.0)
+    ax1.set_xlabel('t(s) ', fontsize = 18.0)
+    ax1.set_ylabel('$a_{ij}$', fontsize = 18.0)
+    ax1.legend(bbox_to_anchor=(1.005, 1), loc=2, borderaxespad=0.)
+    
+    ax2.plot(t_factors,u1u1s,'-', color='black',linewidth = 2.0, label='$a_{11}$')
+    ax2.plot(t_factors,u2u2s,'-', color='blue',linewidth = 2.0, label='$a_{22}$')
+    ax2.plot(t_factors,u3u3s,'-', color='red',linewidth = 2.0, label='$a_{33}$')
+    ax2.grid(b=True,which='both',color='0.25',linestyle='--')
+    ax2.tick_params(axis = 'x', labelsize = 18.0)
+    ax2.tick_params(axis = 'y', labelsize = 18.0)
+    ax2.set_xlabel('t(s) ', fontsize = 18.0)
+    ax2.set_ylabel('$u_i u_j$', fontsize = 18.0)
+    ax2.legend(bbox_to_anchor=(1.005, 1), loc=2, borderaxespad=0.)
+    
+    plt.legend(loc='best')
+    plt.show()
+    
     
     if int(validation) == 1:
         if int(casetype) ==  1:
@@ -282,7 +370,9 @@ def data_extraction_RSM(validation, casetype):
     u2u2s = []
     u3u3s = []
     u1u2s = []
-    
+    a11s = []
+    a22s = []
+    a33s = []
     
     f = open('Output_RSM.dat')
     data = f.read()
@@ -306,6 +396,7 @@ def data_extraction_RSM(validation, casetype):
         ks.append(k)
         e = item[80:96]
         es.append(e)
+    
         #print 'n', n
         #print 'x', x
         #print 't', t
@@ -315,6 +406,7 @@ def data_extraction_RSM(validation, casetype):
         #print 'e', e
 
     #print len(ns), len(xs), len(ts), len(ss), len(pks), len(ks), len(es)
+    
 
     f.close()
     
@@ -331,16 +423,16 @@ def data_extraction_RSM(validation, casetype):
         a22s.append(a22)
         a33 = item[34:49]
         a33s.append(a33)
-        a12 = item[50:65]
-        a12s.append(a12)
+        #a12 = item[50:65]
+        #a12s.append(a12)
         u1u1 = item[66:81]
         u1u1s.append(u1u1)
         u2u2 = item[82:97]
         u2u2s.append(u2u2)
         u3u3 = item[98:113]
         u3u3s.append(u3u3)
-        u1u2 = item[114:129]
-        u1u2s.append(u1u2)
+        #u1u2 = item[114:129]
+        #u1u2s.append(u1u2)
         
         #print 'a11', a11
         #print 'a22', a22
@@ -394,7 +486,7 @@ def data_extraction_RSM(validation, casetype):
     ax5.plot(ts,a11s,'-', color='#660000',linewidth = 2.0, label='$a_{11}$')
     ax5.plot(ts,a22s,'-*', color='#336600',linewidth = 2.0, label='$a_{22}$')
     ax5.plot(ts,a33s,'-', color='#bb00ff',linewidth = 2.0, label='$a_{33}$')
-    ax5.plot(ts,a12s,'-', color='#ff4500',linewidth = 2.0, label='$a_{12}$')
+    #ax5.plot(ts,a12s,'-', color='#ff4500',linewidth = 2.0, label='$a_{12}$')
     ax5.grid(b=True,which='both',color='0.25',linestyle='--')
     ax5.tick_params(axis = 'x', labelsize = 15.0)
     ax5.tick_params(axis = 'y', labelsize = 15.0)
@@ -405,7 +497,7 @@ def data_extraction_RSM(validation, casetype):
     ax6.plot(ts,u1u1s,'-', color='#660000',linewidth = 2.0, label='$u_1 u_1$')
     ax6.plot(ts,u2u2s,'-*', color='#336600',linewidth = 2.0, label='$u_2 u_2$')
     ax6.plot(ts,u3u3s,'-', color='#bb00ff',linewidth = 2.0, label='$u_3 u_3$')
-    ax6.plot(ts,u1u2s,'-', color='#ff4500',linewidth = 2.0, label='$u_1 u_2$')
+    #ax6.plot(ts,u1u2s,'-', color='#ff4500',linewidth = 2.0, label='$u_1 u_2$')
     ax6.grid(b=True,which='both',color='0.25',linestyle='--')
     ax6.tick_params(axis = 'x', labelsize = 18.0)
     ax6.tick_params(axis = 'y', labelsize = 18.0)
